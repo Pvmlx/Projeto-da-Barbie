@@ -1,0 +1,99 @@
+/mvnw text eol=lf
+*.cmd text eol=crlf
+package com.example.demo;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class GuardaRoupaTest {
+
+    private static final double DELTA = 0.001;
+
+    private GuardaRoupa guardaRoupa;
+
+    @BeforeEach
+    void setUp() {
+        guardaRoupa = new GuardaRoupa(500.00);
+    }
+
+    // ------------------------------------------------------------------
+    // precoComDesconto
+    // ------------------------------------------------------------------
+
+    @Test
+    @DisplayName("10% de desconto em 200 deve resultar em 180")
+    void desconto10PorCentoEm200Resulta180() {
+        assertEquals(180.0, guardaRoupa.precoComDesconto(200.0, 10.0), DELTA);
+    }
+
+    @Test
+    @DisplayName("Desconto negativo deve lançar exceção")
+    void descontoNegativoLancaExcecao() {
+        assertThrows(IllegalArgumentException.class,
+                () -> guardaRoupa.precoComDesconto(200.0, -10.0));
+    }
+
+    @Test
+    @DisplayName("Desconto acima de 100 deve lançar exceção")
+    void descontoAcimaDe100LancaExcecao() {
+        assertThrows(IllegalArgumentException.class,
+                () -> guardaRoupa.precoComDesconto(200.0, 150.0));
+    }
+
+    @Test
+    @DisplayName("Descontos de 0% e 100% são válidos (limites)")
+    void descontosNosLimitesSaoValidos() {
+        assertEquals(200.0, guardaRoupa.precoComDesconto(200.0, 0.0), DELTA);
+        assertEquals(0.0, guardaRoupa.precoComDesconto(200.0, 100.0), DELTA);
+    }
+
+    // ------------------------------------------------------------------
+    // cabeNoOrcamento (orçamento = 500.00)
+    // ------------------------------------------------------------------
+
+    @Test
+    @DisplayName("Preço abaixo do orçamento cabe")
+    void precoAbaixoDoOrcamentoCabe() {
+        assertTrue(guardaRoupa.cabeNoOrcamento(499.99));
+    }
+
+    @Test
+    @DisplayName("Preço exatamente igual ao orçamento cabe")
+    void precoIgualAoOrcamentoCabe() {
+        assertTrue(guardaRoupa.cabeNoOrcamento(500.00));
+    }
+
+    @Test
+    @DisplayName("Preço acima do orçamento não cabe")
+    void precoAcimaDoOrcamentoNaoCabe() {
+        assertFalse(guardaRoupa.cabeNoOrcamento(500.01));
+    }
+
+    // ------------------------------------------------------------------
+    // ehDeGala (regra: acima de 200)
+    // ------------------------------------------------------------------
+
+    @Test
+    @DisplayName("Preço abaixo de 200 não é gala")
+    void precoAbaixoDe200NaoEhGala() {
+        assertFalse(guardaRoupa.ehDeGala(199.99));
+    }
+
+    @Test
+    @DisplayName("Preço exatamente 200 não é gala")
+    void precoExatamente200NaoEhGala() {
+        assertFalse(guardaRoupa.ehDeGala(200.00));
+    }
+
+    @Test
+    @DisplayName("Preço acima de 200 é gala")
+    void precoAcimaDe200EhGala() {
+        assertTrue(guardaRoupa.ehDeGala(200.01));
+    }
+}
